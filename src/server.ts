@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { StreamChat } from 'stream-chat';
-import {GoogleGenAI} from '@google/genai';
+import {Content, GoogleGenAI} from '@google/genai';
 import { db } from './config/database.js';
 import { chats, users } from './db/schema.js';
 import { eq } from 'drizzle-orm';
@@ -124,7 +124,7 @@ app.post('/chat', async (req: Request, res: Response): Promise<any> => {
               role: 'model',
               parts: modelPartList,
           },
-      ],
+      ] as Content[],
     });
 
     const aiMessage: string = response.text ?? 'No response from AI';
