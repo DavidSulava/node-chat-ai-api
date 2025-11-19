@@ -2,7 +2,7 @@
 
 This is the backend for the Chat AI application. It is a Node/Express/TypeScript API that uses [Stream](https://www.getStream.io) for chat, chat history, and user management. It also uses a PostgreSQL database from [Neon](https://www.neon.tech) to store user information and chat history. We use the Drizzle ORM to interact with the database. [Gemini](https://aistudio.google.com/) is used for the AI chatbot.
 
-The Vue.js frontend for this application can be found [here]().
+The Vue.js frontend for this application can be found [here](https://github.com/DavidSulava/vue-chat-ai-ui).
 
 ## Installation
 
