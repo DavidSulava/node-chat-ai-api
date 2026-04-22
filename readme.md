@@ -14,7 +14,7 @@ The Vue.js frontend for this application can be found [here](https://github.com/
 PORT=5000
 STREAM_API_KEY=""
 STREAM_API_SECRET=""
-OPENAI_API_KEY=""
+GEMINI_API_KEY=""
 DATABASE_URL="postgresql://username:password@localhost:5432/dbname"
 ```
 
