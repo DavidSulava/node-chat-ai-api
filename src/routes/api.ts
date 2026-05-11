@@ -64,7 +64,7 @@ router.post('/register-user', async (req: Request, res: Response): Promise<any> 
   }
 });
 /**
- * POST endpoint to send message to AI
+ * send message to AI
  */
 router.post('/chat', async (req: Request, res: Response): Promise<any> => {
   const { message, userId } = req.body || {};
