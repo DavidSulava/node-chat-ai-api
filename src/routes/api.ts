@@ -1,4 +1,4 @@
-import express, { Request, Response, Router } from 'express';
+import express, { Request, Response, Router, RequestHandler  } from 'express';
 import { StreamChat } from 'stream-chat';
 import { Content, GoogleGenAI } from '@google/genai';
 import { db } from '../config/database.js';
@@ -24,11 +24,12 @@ router.get('/status', (req: Request, res: Response) => {
 /**
  * register a user with Stream Chat
  */
-router.post('/register-user', async (req: Request, res: Response): Promise<any> => {
+router.post('/register-user', async (req: Request, res: Response) => {
   const { name, email } = req.body || {};
 
   if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
+    res.status(400).json({ error: 'Name and email are required' });
+    return;
   }
 
   try {
@@ -66,11 +67,12 @@ router.post('/register-user', async (req: Request, res: Response): Promise<any> 
 /**
  * send message to AI
  */
-router.post('/chat', async (req: Request, res: Response): Promise<any> => {
+router.post('/chat', async (req: Request, res: Response) => {
   const { message, userId } = req.body || {};
 
   if (!message || !userId) {
-    return res.status(400).json({ error: 'Message and user are required' });
+    res.status(400).json({ error: 'Message and user are required' });
+    return;
   }
 
   try {
@@ -78,9 +80,8 @@ router.post('/chat', async (req: Request, res: Response): Promise<any> => {
     const userResponse = await chatClient.queryUsers({ id: userId });
 
     if (!userResponse.users.length) {
-      return res
-        .status(404)
-        .json({ error: 'user not found. Please register first' });
+      res.status(404).json({ error: 'user not found. Please register first' });
+      return;
     }
     // Check user in database
     const existingUser = await db
@@ -89,9 +90,8 @@ router.post('/chat', async (req: Request, res: Response): Promise<any> => {
       .where(eq(users.userId, userId));
 
     if (!existingUser.length) {
-      return res
-        .status(404)
-        .json({ error: 'User not found in database, please register' });
+      res.status(404).json({ error: 'User not found in database, please register' });
+      return;
     }
     // Fetch users past messages for context
     const chatHistory = await db
@@ -142,17 +142,18 @@ router.post('/chat', async (req: Request, res: Response): Promise<any> => {
     res.status(200).json({ reply: aiMessage });
   } catch (error) {
     console.log('Error generating AI response', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 /**
  * get chat history for a user
  */
-router.post('/get-messages', async (req: Request, res: Response): Promise<any> => {
+router.post('/get-messages', async (req: Request, res: Response) => {
   const { userId } = req.body || {};
 
   if (!userId) {
-    return res.status(400).json({ error: 'User ID is required' });
+    res.status(400).json({ error: 'User ID is required' });
+    return;
   }
 
   try {
