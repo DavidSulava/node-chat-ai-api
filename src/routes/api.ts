@@ -16,13 +16,13 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 /**
- * GET endpoint to check API status
+ * check API status
  */
 router.get('/status', (req: Request, res: Response) => {
   res.status(200).json({ status: 'API is running' });
 });
 /**
- * POST endpoint to register a user with Stream Chat
+ * register a user with Stream Chat
  */
 router.post('/register-user', async (req: Request, res: Response): Promise<any> => {
   const { name, email } = req.body || {};
@@ -68,7 +68,7 @@ router.post('/register-user', async (req: Request, res: Response): Promise<any> 
  */
 router.post('/chat', async (req: Request, res: Response): Promise<any> => {
   const { message, userId } = req.body || {};
-  console.log('chat', message);
+
   if (!message || !userId) {
     return res.status(400).json({ error: 'Message and user are required' });
   }
@@ -146,7 +146,7 @@ router.post('/chat', async (req: Request, res: Response): Promise<any> => {
   }
 });
 /**
- * POST endpoint to get chat history for a user
+ * get chat history for a user
  */
 router.post('/get-messages', async (req: Request, res: Response): Promise<any> => {
   const { userId } = req.body || {};
