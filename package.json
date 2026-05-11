@@ -2,8 +2,7 @@
   "name": "chat-ai-api",
   "version": "1.0.0",
   "description": "Backend for an ai chat application",
-  "license": "MIT",
-  "author": "Brad Traversy",
+  "author": "David Sulava",
   "type": "module",
   "main": "server.js",
   "scripts": {
