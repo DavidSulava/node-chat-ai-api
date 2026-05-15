@@ -19,6 +19,7 @@
     // Skip checking declaration files in `node_modules` to speed up compilation.
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
+    "noEmit": true,
   },
   "exclude": ["drizzle.config.ts"]
 }
