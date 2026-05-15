@@ -10,8 +10,6 @@ import { AppError } from '../utils/errors.js';
 import { catchAsync } from '../utils/catchAsync.js';
 
 const router: Router = express.Router();
-// Cache to store Stream channels per user
-const channelCache = new Map<string, any>();
 // Initialize Stream Client
 const chatClient = StreamChat.getInstance(
   env.STREAM_API_KEY,
@@ -134,15 +132,12 @@ router.post(
     // Save chat to database
     await db.insert(chats).values({ userId, message, reply: aiMessage });
     // Get or create Stream channel for this user
-    let channel = channelCache.get(userId);
-    if (!channel) {
-      channel = chatClient.channel('messaging', `chat-${userId}`, {
-        name: 'AI Chat',
-        created_by_id: 'ai_bot',
-      });
-      await channel.create();
-      channelCache.set(userId, channel);
-    }
+    const channel = chatClient.channel('messaging', `chat-${userId}`, {
+      name: 'AI Chat',
+      created_by_id: 'ai_bot',
+    });
+
+    await channel.create();
     await channel.sendMessage({ text: aiMessage, user_id: 'ai_bot' });
     res.status(200).json({ reply: aiMessage });
   })
