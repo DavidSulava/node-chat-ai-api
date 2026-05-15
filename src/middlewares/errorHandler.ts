@@ -1,6 +1,6 @@
 // src/middlewares/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../utils/errors.ts';
+import { AppError } from '../utils/errors.js';
 
 /**
  * Central error handling middleware.

@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import apiRouter from './routes/api.ts';
-import { env } from './config/env.ts';
-import { errorHandler } from './middlewares/errorHandler.ts';
+import apiRouter from './routes/api.js';
+import { env } from './config/env.js';
+import { errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
 const PORT = env.PORT ? Number(env.PORT) : 5000;

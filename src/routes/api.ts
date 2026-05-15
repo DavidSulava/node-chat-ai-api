@@ -1,13 +1,13 @@
 import express, { Request, Response, Router } from 'express';
 import { StreamChat } from 'stream-chat';
 import { Content, GoogleGenAI } from '@google/genai';
-import { db } from '../config/database.ts';
-import { chats, users } from '../db/schema.ts';
+import { db } from '../config/database.js';
+import { chats, users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
-import type { ChatSelect } from '../db/schema.ts';
-import { env } from '../config/env.ts';
-import { AppError } from '../utils/errors.ts';
-import { catchAsync } from '../utils/catchAsync.ts';
+import type { ChatSelect } from '../db/schema.js';
+import { env } from '../config/env.js';
+import { AppError } from '../utils/errors.js';
+import { catchAsync } from '../utils/catchAsync.js';
 
 const router: Router = express.Router();
 // Cache to store Stream channels per user
