@@ -1,20 +1,24 @@
-import express, { Request, Response, Router, RequestHandler  } from 'express';
+import express, { Request, Response, Router } from 'express';
 import { StreamChat } from 'stream-chat';
 import { Content, GoogleGenAI } from '@google/genai';
-import { db } from '../config/database.js';
-import { chats, users } from '../db/schema.js';
+import { db } from '../config/database.ts';
+import { chats, users } from '../db/schema.ts';
 import { eq } from 'drizzle-orm';
+import type { ChatSelect } from '../db/schema.ts';
+import { env } from '../config/env.ts';
 
 const router: Router = express.Router();
-// Initialize Stream Client
-const chatClient = StreamChat.getInstance(
-  process.env.STREAM_API_KEY!,
-  process.env.STREAM_API_SECRET!
-);
-// Initialize GoogleGenAI
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
+// Cache to store Stream channels per user
+const channelCache = new Map<string, any>();
+ // Initialize Stream Client
+ const chatClient = StreamChat.getInstance(
+   env.STREAM_API_KEY,
+   env.STREAM_API_SECRET
+ );
+ // Initialize GoogleGenAI
+ const ai = new GoogleGenAI({
+   apiKey: env.GEMINI_API_KEY,
+ });
 /**
  * check API status
  */
@@ -102,11 +106,11 @@ router.post('/chat', async (req: Request, res: Response) => {
       .limit(10);
     // Format chat history for GoogleGenAI
     const conversation = chatHistory.flatMap(
-      (chat) => [
-        { role: 'user', content: chat.message },
-        { role: 'assistant', content: chat.reply },
-      ]
-    );
+  (chat: ChatSelect) => [
+    { role: 'user', content: chat.message },
+    { role: 'assistant', content: chat.reply },
+  ]
+);
     // Add latest user messages to the conversation
     conversation.push({ role: 'user', content: message });
 
@@ -130,14 +134,17 @@ router.post('/chat', async (req: Request, res: Response) => {
     const aiMessage: string = response.text ?? 'No response from AI';
     // Save chat to database
     await db.insert(chats).values({ userId, message, reply: aiMessage });
-    // Create or get channel
-    const channel = chatClient.channel('messaging', `chat-${userId}`, {
-      name: 'AI Chat',
-      created_by_id: 'ai_bot',
-    });
-
-    await channel.create();
-    await channel.sendMessage({ text: aiMessage, user_id: 'ai_bot' });
+// Get or create Stream channel for this user
+let channel = channelCache.get(userId);
+if (!channel) {
+  channel = chatClient.channel('messaging', `chat-${userId}`, {
+    name: 'AI Chat',
+    created_by_id: 'ai_bot',
+  });
+  await channel.create();
+  channelCache.set(userId, channel);
+}
+await channel.sendMessage({ text: aiMessage, user_id: 'ai_bot' });
 
     res.status(200).json({ reply: aiMessage });
   } catch (error) {

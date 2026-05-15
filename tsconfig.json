@@ -17,7 +17,8 @@
     // Allow importing JSON files directly as modules.
     "resolveJsonModule": true,
     // Skip checking declaration files in `node_modules` to speed up compilation.
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
   },
   "exclude": ["drizzle.config.ts"]
 }
