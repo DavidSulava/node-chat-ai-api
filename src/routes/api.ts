@@ -9,6 +9,12 @@ import { env } from "../config/env.js";
 import { AppError } from "../utils/errors.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { logger } from "../utils/logger.js";
+import { validate } from "../middlewares/validate.js";
+import {
+  registerUserSchema,
+  chatMessageSchema,
+  getMessagesSchema,
+} from "../utils/validation.js";
 
 const router: Router = express.Router();
 // Initialize Stream Client
@@ -31,12 +37,9 @@ router.get("/status", (_req: Request, res: Response) => {
  */
 router.post(
   "/register-user",
+  validate(registerUserSchema),
   catchAsync(async (req: Request, res: Response) => {
-    const { name, email } = req.body || {};
-
-    if (!name || !email) {
-      throw new AppError(400, "Name and email are required");
-    }
+    const { name, email } = req.body;
 
     const userId = email.replace(/[^a-zA-Z0-9_-]/g, "_");
     // Check if user exists in Stream
@@ -73,12 +76,9 @@ router.post(
  */
 router.post(
   "/chat",
+  validate(chatMessageSchema),
   catchAsync(async (req: Request, res: Response) => {
-    const { message, userId } = req.body || {};
-
-    if (!message || !userId) {
-      throw new AppError(400, "Message and user are required");
-    }
+    const { message, userId } = req.body;
 
     // Verify user exists in Stream
     const userResponse = await chatClient.queryUsers({ id: userId });
@@ -150,12 +150,9 @@ router.post(
  */
 router.post(
   "/get-messages",
+  validate(getMessagesSchema),
   catchAsync(async (req: Request, res: Response) => {
-    const { userId } = req.body || {};
-
-    if (!userId) {
-      throw new AppError(400, "User ID is required");
-    }
+    const { userId } = req.body;
 
     const chatHistory = await db
       .select()
