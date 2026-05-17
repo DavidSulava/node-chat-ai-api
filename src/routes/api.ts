@@ -1,31 +1,33 @@
 import express, { Request, Response, Router } from "express";
 import { StreamChat } from "stream-chat";
-import { Content, GoogleGenAI } from "@google/genai";
-import { db } from "../config/database.js";
-import { chats, users } from "../db/schema.js";
-import { eq } from "drizzle-orm";
-import type { ChatSelect } from "../db/schema.js";
+import { GoogleGenAI } from "@google/genai";
 import { env } from "../config/env.js";
-import { AppError } from "../utils/errors.js";
 import { catchAsync } from "../utils/catchAsync.js";
-import { logger } from "../utils/logger.js";
 import { validate } from "../middlewares/validate.js";
 import {
   registerUserSchema,
   chatMessageSchema,
   getMessagesSchema,
 } from "../utils/validation.js";
+import { createUserService } from "../services/UserService.js";
+import { createChatService } from "../services/ChatService.js";
 
 const router: Router = express.Router();
+
 // Initialize Stream Client
 const chatClient = StreamChat.getInstance(
   env.STREAM_API_KEY,
   env.STREAM_API_SECRET,
 );
+
 // Initialize GoogleGenAI
 const ai = new GoogleGenAI({
   apiKey: env.GEMINI_API_KEY,
 });
+
+// Initialize services
+const userService = createUserService(chatClient);
+const chatService = createChatService(chatClient, ai);
 /**
  * check API status
  */
@@ -40,35 +42,8 @@ router.post(
   validate(registerUserSchema),
   catchAsync(async (req: Request, res: Response) => {
     const { name, email } = req.body;
-
-    const userId = email.replace(/[^a-zA-Z0-9_-]/g, "_");
-    // Check if user exists in Stream
-    const userResponse = await chatClient.queryUsers({ id: { $eq: userId } });
-
-    if (!userResponse.users.length) {
-      // Add new user to stream
-      await chatClient.upsertUser({
-        id: userId,
-        name: name,
-        email: email,
-        role: "user",
-      });
-    }
-
-    // Check for existing user in database
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.userId, userId));
-
-    if (!existingUser.length) {
-      logger.info(
-        `User ${userId} does not exist in the database. Adding them...`,
-      );
-      await db.insert(users).values({ userId, name, email });
-    }
-
-    res.status(200).json({ userId, name, email });
+    const result = await userService.registerUser({ name, email });
+    res.status(200).json(result);
   }),
 );
 /**
@@ -79,70 +54,9 @@ router.post(
   validate(chatMessageSchema),
   catchAsync(async (req: Request, res: Response) => {
     const { message, userId } = req.body;
-
-    // Verify user exists in Stream
-    const userResponse = await chatClient.queryUsers({ id: userId });
-    if (!userResponse.users.length) {
-      throw new AppError(404, "User not found. Please register first");
-    }
-
-    // Check user in database
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.userId, userId));
-    if (!existingUser.length) {
-      throw new AppError(404, "User not found in database, please register");
-    }
-
-    // Fetch user's past messages for context
-    const chatHistory = await db
-      .select()
-      .from(chats)
-      .where(eq(chats.userId, userId))
-      .orderBy(chats.createdAt)
-      .limit(10);
-    // Format chat history for GoogleGenAI
-    const conversation = chatHistory.flatMap((chat: ChatSelect) => [
-      { role: "user", content: chat.message },
-      { role: "assistant", content: chat.reply },
-    ]);
-    // Add latest user message to the conversation
-    conversation.push({ role: "user", content: message });
-
-    const userPartList = conversation
-      .filter((chat) => chat.role === "user")
-      .map((chat) => ({ text: chat.content }));
-    const modelPartList = conversation
-      .filter((chat) => chat.role === "assistant")
-      .map((chat) => ({ text: chat.content }));
-
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        {
-          role: "user",
-          parts: userPartList,
-        },
-        {
-          role: "model",
-          parts: modelPartList,
-        },
-      ] as Content[],
-    });
-
-    const aiMessage: string = response.text ?? "No response from AI";
-    // Save chat to database
-    await db.insert(chats).values({ userId, message, reply: aiMessage });
-    // Get or create Stream channel for this user
-    const channel = chatClient.channel("messaging", `chat-${userId}`, {
-      name: "AI Chat",
-      created_by_id: "ai_bot",
-    });
-
-    await channel.create();
-    await channel.sendMessage({ text: aiMessage, user_id: "ai_bot" });
-    res.status(200).json({ reply: aiMessage });
+    await userService.ensureUserExists(userId);
+    const result = await chatService.processChat({ message, userId });
+    res.status(200).json(result);
   }),
 );
 /**
@@ -153,13 +67,8 @@ router.post(
   validate(getMessagesSchema),
   catchAsync(async (req: Request, res: Response) => {
     const { userId } = req.body;
-
-    const chatHistory = await db
-      .select()
-      .from(chats)
-      .where(eq(chats.userId, userId));
-
-    res.status(200).json({ messages: chatHistory });
+    const messages = await chatService.getMessages(userId);
+    res.status(200).json({ messages });
   }),
 );
 
