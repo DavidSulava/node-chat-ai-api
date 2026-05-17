@@ -1,5 +1,5 @@
 // src/utils/catchAsync.ts
-import type { RequestHandler, NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from "express";
 
 /**
  * Wraps an async Express route handler and forwards any rejected promise
@@ -9,9 +9,9 @@ import type { RequestHandler, NextFunction, Request, Response } from 'express';
  *   router.get('/path', catchAsync(async (req, res, next) => { ... }));
  */
 export const catchAsync = (
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>
-): RequestHandler => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
+  fn: (_req: Request, _res: Response, _next: NextFunction) => Promise<unknown>,
+) => {
+  return (_req: Request, _res: Response, _next: NextFunction) => {
+    fn(_req, _res, _next).catch(_next);
   };
 };

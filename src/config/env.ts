@@ -1,8 +1,8 @@
-import { config } from 'dotenv';
-import { z } from 'zod';
+import { config } from "dotenv";
+import { z } from "zod";
 
 // Load .env variables into process.env
-config({ path: '.env' });
+config({ path: ".env" });
 /**
  * Schema of all required environment variables.
  * Zod ensures that missing or malformed variables cause a clear error.

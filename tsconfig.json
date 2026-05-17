@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     // Use ECMAScript Modules (ESM) with Node.js compatibility.
     "module": "NodeNext",
     // Controls how modules are resolved. "NodeNext" enables native ESM support.
