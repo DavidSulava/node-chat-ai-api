@@ -6,6 +6,7 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 
 export default [
+  // 1️⃣ Ignore patterns – files we do NOT want ESLint to process
   {
     ignores: [
       'node_modules/',
@@ -13,14 +14,22 @@ export default [
       'drizzle.config.ts',
       '.eslintignore',
     ],
+  },
+
+  // 2️⃣ Global language options (Node globals)
+  {
     languageOptions: {
       globals: {
-        process: "readonly",
-        console: "readonly",
+        process: 'readonly',
+        console: 'readonly',
       },
     },
   },
+
+  // 3️⃣ Base recommended rules (no need to specify files – they apply everywhere)
   eslint.configs.recommended,
+
+  // 4️⃣ TypeScript‑specific configuration
   {
     files: ['src/**/*.ts', 'src/**/*.tsx'],
     languageOptions: {
@@ -36,29 +45,29 @@ export default [
       prettier: prettierPlugin,
     },
     rules: {
-      // TypeScript specific rules
+      // TypeScript specific: allow unused vars that start with _
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          args: 'all',
           argsIgnorePattern: '^_',
-          caughtErrors: 'all',
-          caughtErrorsIgnorePattern: '^_',
-          destructuredArrayIgnorePattern: '^_',
           varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
           ignoreRestSiblings: true,
-          reportUsedIgnorePattern: false,
-        }
+        },
       ],
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      // General JavaScript rules
+
+      // General JavaScript
       'no-unused-vars': 'off',
       'no-console': ['warn'],
       'semi': ['error', 'always'],
       'quotes': ['error', 'single', { avoidEscape: true }],
-      // Prettier integration
+
+      // Prettier integration (enforces formatting as an ESLint rule)
       'prettier/prettier': 'error',
     },
   },
+
+  // 5️⃣ Disable rules that conflict with Prettier
   prettierConfig,
 ];

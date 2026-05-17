@@ -8,6 +8,7 @@ import type { ChatSelect } from "../db/schema.js";
 import { env } from "../config/env.js";
 import { AppError } from "../utils/errors.js";
 import { catchAsync } from "../utils/catchAsync.js";
+import { logger } from "../utils/logger.js";
 
 const router: Router = express.Router();
 // Initialize Stream Client
@@ -58,7 +59,7 @@ router.post(
       .where(eq(users.userId, userId));
 
     if (!existingUser.length) {
-      console.log(
+      logger.info(
         `User ${userId} does not exist in the database. Adding them...`,
       );
       await db.insert(users).values({ userId, name, email });

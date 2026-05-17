@@ -1,6 +1,7 @@
 // src/middlewares/errorHandler.ts
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/errors.js";
+import { logger } from "../utils/logger.js";
 
 /**
  * Central error handling middleware.
@@ -10,7 +11,7 @@ export const errorHandler = (
   err: Error,
   _req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   _next: NextFunction,
 ) => {
   if (err instanceof AppError) {
@@ -18,6 +19,6 @@ export const errorHandler = (
     return;
   }
 
-  console.error("Unhandled System Error:", err);
+  logger.error({ err }, "Unhandled System Error");
   res.status(500).json({ error: "Internal Server Error" });
 };
