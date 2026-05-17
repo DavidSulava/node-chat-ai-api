@@ -1,6 +1,6 @@
 # Chat AI API
 
-[English version](./README.md)
+[English version](./readme.md)
 
 Это бэкенд для приложения Chat AI. Node/Express/TypeScript API, который использует [Stream](https://www.getStream.io) для чата, истории сообщений и управления пользователями. Также используется PostgreSQL база данных от [Neon](https://www.neon.tech) для хранения информации о пользователях и истории чата. Для взаимодействия с базой данных используется Drizzle ORM. [Gemini](https://aistudio.google.com/) используется для AI чат-бота.
 
