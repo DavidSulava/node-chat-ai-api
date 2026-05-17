@@ -20,6 +20,8 @@
     "resolveJsonModule": true,
     // Skip checking declaration files in `node_modules` to speed up compilation.
     "skipLibCheck": true,
+    // Vitest globals
+    "types": ["vitest/globals"]
   },
-  "exclude": ["drizzle.config.ts"]
+  "exclude": ["drizzle.config.ts", "vite.config.ts", "src/__tests__"]
 }
