@@ -15,10 +15,12 @@ export const errorHandler = (
   _next: NextFunction,
 ) => {
   if (err instanceof AppError) {
-    res.status(err.statusCode).json({ error: err.message });
+    res
+      .status(err.statusCode)
+      .json({ status: err.statusCode, message: err.message });
     return;
   }
 
   logger.error({ err }, "Unhandled System Error");
-  res.status(500).json({ error: "Internal Server Error" });
+  res.status(500).json({ status: 500, message: "Internal Server Error" });
 };
