@@ -3,7 +3,6 @@ import { createChatService } from '../services/ChatService.js';
 import { testDb, testChats, sqlite } from './test-db.js';
 import { eq } from 'drizzle-orm';
 import { StreamChat } from 'stream-chat';
-import { GoogleGenAI } from '@google/genai';
 
 const mockChannel = {
   create: vi.fn().mockResolvedValue({}),
@@ -116,6 +115,8 @@ describe('ChatService', () => {
 
       const history = await chatService.fetchHistory('user1');
       expect(history.length).toBe(10);
+
+      await testDb.delete(testChats).where(eq(testChats.userId, 'user1'));
     });
   });
 });

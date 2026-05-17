@@ -13,6 +13,7 @@ export default [
       'dist/',
       'drizzle.config.ts',
       '.eslintignore',
+      'src/__tests__/',
     ],
   },
 

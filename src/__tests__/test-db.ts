@@ -1,7 +1,8 @@
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import Database from 'better-sqlite3';
 
-const sqlite = require('better-sqlite3')(':memory:');
+const sqlite = new Database(':memory:');
 export const testDb = drizzle(sqlite);
 
 export const testChats = sqliteTable('chats', {
