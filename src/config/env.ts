@@ -13,6 +13,7 @@ const EnvSchema = z.object({
   STREAM_API_SECRET: z.string().min(1),
   GEMINI_API_KEY: z.string().min(1),
   PORT: z.string().optional(),
+  ALLOWED_ORIGINS: z.string().optional(),
 });
 /**
  * Parse and validate the environment.

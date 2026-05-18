@@ -2,6 +2,8 @@ import express, { Request, Response, Router } from "express";
 import { StreamChat } from "stream-chat";
 import { GoogleGenAI } from "@google/genai";
 import { env } from "../config/env.js";
+import { db } from "../config/database.js";
+import { users } from "../db/schema.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { validate } from "../middlewares/validate.js";
 import {
@@ -34,6 +36,14 @@ const chatService = createChatService(chatClient, ai);
 router.get("/status", (_req: Request, res: Response) => {
   res.status(200).json({ status: "API is running" });
 });
+
+router.get(
+  "/health",
+  catchAsync(async (_req: Request, res: Response) => {
+    await db.select().from(users).limit(1);
+    res.status(200).json({ status: "healthy", database: "connected" });
+  }),
+);
 /**
  * register a user with Stream Chat
  */

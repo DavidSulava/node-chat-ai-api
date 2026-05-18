@@ -5,6 +5,7 @@ import { StreamChat } from "stream-chat";
 import { GoogleGenAI, Content } from "@google/genai";
 import type { ChatSelect } from "../db/schema.js";
 import { logger } from "../utils/logger.js";
+import { retry } from "../utils/retry.js";
 
 export interface ChatMessageParams {
   message: string;
@@ -50,13 +51,17 @@ export const createChatService = (chatClient: StreamChat, ai: GoogleGenAI) => {
       .filter((chat) => chat.role === "assistant")
       .map((chat) => ({ text: chat.content }));
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        { role: "user", parts: userPartList },
-        { role: "model", parts: modelPartList },
-      ] as Content[],
-    });
+    const response = await retry(
+      () =>
+        ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [
+            { role: "user", parts: userPartList },
+            { role: "model", parts: modelPartList },
+          ] as Content[],
+        }),
+      { maxAttempts: 3, initialDelayMs: 1000 },
+    );
 
     return response.text ?? "No response from AI";
   };
@@ -70,12 +75,19 @@ export const createChatService = (chatClient: StreamChat, ai: GoogleGenAI) => {
   };
 
   const sendStreamMessage = async (userId: string, reply: string) => {
-    const channel = chatClient.channel("messaging", `chat-${userId}`, {
-      name: "AI Chat",
-      created_by_id: "ai_bot",
-    });
+    const channelId = `chat-${userId}`;
+    let channel = chatClient.channel("messaging", channelId);
 
-    await channel.create();
+    try {
+      await channel.watch();
+    } catch {
+      channel = chatClient.channel("messaging", channelId, {
+        name: "AI Chat",
+        created_by_id: "ai_bot",
+      });
+      await channel.create();
+    }
+
     await channel.sendMessage({ text: reply, user_id: "ai_bot" });
   };
 

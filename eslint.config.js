@@ -23,6 +23,8 @@ export default [
       globals: {
         process: 'readonly',
         console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
       },
     },
   },
