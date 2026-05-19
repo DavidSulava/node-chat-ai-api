@@ -24,18 +24,21 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('creates a new user', async () => {
+    it('creates a new user and returns tokens', async () => {
       mockChatClient.upsertUser.mockResolvedValue({});
 
       const result = await authService.register({ login: 'testuser', password: 'password123' });
 
       expect(result.login).toBe('testuser');
       expect(result.userId).toBeDefined();
+      expect(result.accessToken).toBeDefined();
+      expect(result.refreshToken).toBeDefined();
       expect(mockChatClient.upsertUser).toHaveBeenCalled();
 
       const dbUsers = await testDb.select().from(testUsers).where(eq(testUsers.login, 'testuser'));
       expect(dbUsers.length).toBe(1);
       expect(dbUsers[0].passwordHash).toBeDefined();
+      expect(dbUsers[0].refreshToken).toBe(result.refreshToken);
     });
 
     it('throws error for duplicate login', async () => {

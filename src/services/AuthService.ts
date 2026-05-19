@@ -47,7 +47,7 @@ export const createAuthService = (chatClient: StreamChat) => {
   const register = async ({
     login,
     password,
-  }: RegisterParams): Promise<AuthUser> => {
+  }: RegisterParams): Promise<AuthUser & AuthTokens> => {
     const existingUser = await db
       .select()
       .from(users)
@@ -72,9 +72,17 @@ export const createAuthService = (chatClient: StreamChat) => {
       passwordHash,
     });
 
+    const accessToken = generateAccessToken(userId);
+    const refreshToken = generateRefreshToken(userId);
+
+    await db
+      .update(users)
+      .set({ refreshToken })
+      .where(eq(users.userId, userId));
+
     logger.info({ userId, login }, "User registered");
 
-    return { userId, login };
+    return { userId, login, accessToken, refreshToken };
   };
 
   const login = async ({
