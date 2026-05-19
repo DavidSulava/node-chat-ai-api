@@ -6,13 +6,10 @@ import { db } from "../config/database.js";
 import { users } from "../db/schema.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { validate } from "../middlewares/validate.js";
-import {
-  registerUserSchema,
-  chatMessageSchema,
-  getMessagesSchema,
-} from "../utils/validation.js";
-import { createUserService } from "../services/UserService.js";
+import { authenticate } from "../middlewares/authenticate.js";
+import { chatMessageSchema } from "../utils/validation.js";
 import { createChatService } from "../services/ChatService.js";
+import authRouter from "./auth.js";
 
 const router: Router = express.Router();
 
@@ -28,8 +25,11 @@ const ai = new GoogleGenAI({
 });
 
 // Initialize services
-const userService = createUserService(chatClient);
 const chatService = createChatService(chatClient, ai);
+
+// Mount auth routes
+router.use("/auth", authRouter);
+
 /**
  * check API status
  */
@@ -44,40 +44,32 @@ router.get(
     res.status(200).json({ status: "healthy", database: "connected" });
   }),
 );
+
 /**
- * register a user with Stream Chat
- */
-router.post(
-  "/register-user",
-  validate(registerUserSchema),
-  catchAsync(async (req: Request, res: Response) => {
-    const { name, email } = req.body;
-    const result = await userService.registerUser({ name, email });
-    res.status(200).json(result);
-  }),
-);
-/**
- * send message to AI
+ * send message to AI (protected)
  */
 router.post(
   "/chat",
+  authenticate,
   validate(chatMessageSchema),
   catchAsync(async (req: Request, res: Response) => {
-    const { message, userId } = req.body;
-    await userService.ensureUserExists(userId);
-    const result = await chatService.processChat({ message, userId });
+    const { message } = req.body;
+    const result = await chatService.processChat({
+      message,
+      userId: req.user.userId,
+    });
     res.status(200).json(result);
   }),
 );
+
 /**
- * get chat history for a user
+ * get chat history for a user (protected)
  */
-router.post(
-  "/get-messages",
-  validate(getMessagesSchema),
+router.get(
+  "/messages",
+  authenticate,
   catchAsync(async (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const messages = await chatService.getMessages(userId);
+    const messages = await chatService.getMessages(req.user.userId);
     res.status(200).json({ messages });
   }),
 );

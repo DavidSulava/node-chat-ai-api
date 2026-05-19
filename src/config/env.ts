@@ -14,6 +14,10 @@ const EnvSchema = z.object({
   GEMINI_API_KEY: z.string().min(1),
   PORT: z.string().optional(),
   ALLOWED_ORIGINS: z.string().optional(),
+  JWT_ACCESS_SECRET: z.string().min(1),
+  JWT_REFRESH_SECRET: z.string().min(1),
+  JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
+  JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
 });
 /**
  * Parse and validate the environment.

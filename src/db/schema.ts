@@ -10,8 +10,9 @@ export const chats = pgTable("chats", {
 
 export const users = pgTable("users", {
   userId: text("user_id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
+  login: text("login").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  refreshToken: text("refresh_token"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 // Type inference for Drizzle queries

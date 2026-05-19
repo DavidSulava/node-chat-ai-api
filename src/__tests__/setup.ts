@@ -17,6 +17,15 @@ vi.mock('../utils/logger.js', () => ({
   },
 }));
 
+vi.mock('../config/env.js', () => ({
+  env: {
+    JWT_ACCESS_SECRET: 'test-access-secret-min-32-chars',
+    JWT_REFRESH_SECRET: 'test-refresh-secret-min-32-chars',
+    JWT_ACCESS_EXPIRES_IN: '15m',
+    JWT_REFRESH_EXPIRES_IN: '7d',
+  },
+}));
+
 beforeEach(() => {
   resetTestDb();
 });

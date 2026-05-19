@@ -15,14 +15,15 @@ export const testChats = sqliteTable('chats', {
 
 export const testUsers = sqliteTable('users', {
   userId: text('user_id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull(),
+  login: text('login').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  refreshToken: text('refresh_token'),
   createdAt: integer('created_at'),
 });
 
 sqlite.exec(`
   CREATE TABLE chats (id INTEGER PRIMARY KEY, user_id TEXT NOT NULL, message TEXT NOT NULL, reply TEXT NOT NULL, created_at INTEGER);
-  CREATE TABLE users (user_id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, created_at INTEGER);
+  CREATE TABLE users (user_id TEXT PRIMARY KEY, login TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, refresh_token TEXT, created_at INTEGER);
 `);
 
 export const resetTestDb = () => {
