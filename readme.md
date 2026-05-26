@@ -1,44 +1,30 @@
-# Chat AI API
+# 🚀 Chat AI API
 
-[Русская версия](readme.ru.md)
+[Русская версия](readme.ru.md) | [Frontend Repository](https://github.com/DavidSulava/vue-chat-ai-ui)
 
-This is the backend for the Chat AI application. It is a Node/Express/TypeScript API that uses [Stream](https://www.getStream.io) for chat, chat history, and user management. It also uses a PostgreSQL database from [Neon](https://www.neon.tech) to store user information and chat history. We use the Drizzle ORM to interact with the database. [Gemini](https://aistudio.google.com/) is used for the AI chatbot.
+A robust, production-ready Node.js backend for the Chat AI ecosystem. Built using **Express** and **TypeScript**, this API acts as the orchestration layer between real-time messaging services, relational storage, and advanced AI models.
 
-The Vue.js frontend for this application can be found [here](https://github.com/DavidSulava/vue-chat-ai-ui).
+---
 
-## Installation
+## ✨ Features & Tech Stack
 
-1. Clone the repository
-2. Run `npm install`
-3. Create a `.env` file in the root directory and add the following environment variables:
+*  **Express & [TypeScript](https://www.typescriptlang.org/)** — Scalable architectural foundation with strict typing.
+*  **[Stream Chat API](https://www.getstream.io)** — Seamless chat orchestration, real-time message history, and user state sync.
+*  **[Google Gemini AI](https://aistudio.google.com/)** — Powered by the official `@google/genai` SDK for intelligent, contextual interactions.
+*  **[Neon PostgreSQL](https://www.neon.tech) & [Drizzle ORM](https://orm.drizzle.team/)** — Cloud-native, serverless relational database with Type-Safe queries and lightweight migrations.
+*  **Security & Performance**:
+    * **JWT Authentication**: Secure user management via `jsonwebtoken`.
+    * **Password Hashing**: Cryptographic salt rounds implemented with `bcrypt`.
+    * **Rate Limiting**: Protection against DDoS and brute-force attacks via `express-rate-limit`.
+    * **Data Validation**: Strict runtime schema definition using `zod`.
+* 🧪 **Testing & Quality**: Fully backed by `vitest` unit-testing and `eslint` code styling.
 
-```
-PORT=5000
-STREAM_API_KEY=""
-STREAM_API_SECRET=""
-GEMINI_API_KEY=""
-DATABASE_URL="postgresql://username:password@localhost:5432/dbname"
-```
+---
 
-You can get these keys by signing up for Stream, Gemini, and Neon.
+## 🛠 Installation & Setup
 
-4. Run database migrations with Drizzle Kit:
-
-```
-npx drizzle-kit generate
-npx drizzle-kit migrate
-```
-
-This will create the necessary tables in your database.
-
-5. Run the server with `npm run dev` and open on `http://localhost:5000`
-
-## Endpoints
-
-- POST `/register-user` - Create a user in Stream chat and in our own database
-- POST `/chat` - Creates a new Stream chat channel, sends a request to Open AI to generate a response, and saves the chat history in our database
-- POST `/get-messages` - Get's the chat history for a specific user
-
-## Building For Production
-
-This is a TypeScript project, so you will need to build the project before running in production. Run `npm run build` to build the project. You can then run the server with `npm start`. The files will be in the `dist` directory.
+### 1. Clone & Install
+```bash
+git clone [https://github.com](https://github.com)
+cd chat-ai-api
+npm install
