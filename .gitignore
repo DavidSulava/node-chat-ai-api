@@ -15,4 +15,5 @@ coverage
 # GitNexus & AI context files
 AGENTS.md
 CLAUDE.md
+rules.md
 .claude/
